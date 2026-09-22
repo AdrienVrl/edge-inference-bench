@@ -1,0 +1,2 @@
+phase,platform,config,backend,latency_median_ms,latency_p95_ms,throughput_ips,peak_mem_mb,model_size_mb,accuracy,acc_metric,batch,threads,versions,notes
+0,Laptop CPU (WSL2),PyTorch FP32 (v2),torch,23.829,28.796,41.97,725.9,14.02,,,1,4,py3.14.4 torch=2.11.0+cu128,
