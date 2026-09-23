@@ -13,6 +13,13 @@ The table is generated from `results.csv` by `bench.py`. Don't edit it by hand.
 | Phase | Platform | Config | Median (ms) | p95 (ms) | Throughput (img/s) | Peak mem (MB) | Size (MB) | Accuracy | Notes |
 |---|---|---|---|---|---|---|---|---|---|
 | 0 | Laptop CPU (WSL2) | PyTorch FP32 (v2) | 23.83 | 28.80 | 42.0 | 725.9 | 14.0 |  |  |
+| 1 | Laptop CPU (WSL2) | ORT FP32 (all opts) | 4.26 | 6.53 | 234.7 | 108.6 | 14.0 |  | providers=CPU |
+| 1 | Laptop CPU (WSL2) | ORT INT8 static (QDQ, per-channel) | 6.92 | 8.15 | 144.6 | 81.8 | 3.9 | 63.1 (top1@1000) | providers=CPU; agree_with_ref=73.5% |
+| 1 | Laptop CPU (WSL2) | Unstructured L1 prune 30% | 4.16 | 6.55 | 240.2 | 98.9 | 14.0 | 23.5 (top1@1000) | providers=CPU; agree_with_ref=26.0% |
+| 1 | Laptop CPU (WSL2) | Structured channel prune 30% | 5.84 | 7.19 | 171.2 | 93.4 | 8.0 | 0.0 (top1@1000) | providers=CPU; agree_with_ref=0.1% |
+| 1 | Laptop CPU (WSL2) | Unstructured L1 prune 5% | 4.12 | 6.53 | 242.4 | 98.8 | 14.0 | 72.8 (top1@1000) | providers=CPU; agree_with_ref=95.3% |
+| 1 | Laptop CPU (WSL2) | Structured channel prune 5% | 7.03 | 11.04 | 142.3 | 96.3 | 12.9 | 14.3 (top1@1000) | providers=CPU; agree_with_ref=14.9% |
+| 1 | Laptop CPU (WSL2) | Structured channel prune 5% + BN restat | 10.67 | 12.79 | 93.7 | 96.4 | 12.9 | 53.7 (top1@1000) | providers=CPU; agree_with_ref=59.5% |
 <!-- BENCH-TABLE:END -->
 
 ## Methodology

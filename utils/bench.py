@@ -379,6 +379,21 @@ def cmd_export(a):
 
 def cmd_run(a):
     backend = make_backend(a)
+    if a.backend == "ort" and a.dump_optimized:
+        p = Path(a.dump_optimized)
+        if p.exists() and p.stat().st_size > 0:
+            print(
+                f"[ok] optimized model saved to {p} ({p.stat().st_size / 1e6:.2f} MB)"
+            )
+        else:
+            print(
+                f"[warn] expected an optimized model at {p} but it's missing or empty.\n"
+                f"       - try --ort-opt extended (ORT's own docs use this level for offline saving,\n"
+                f"         not 'all', which applies hardware-specific layout transforms)\n"
+                f"       - if --provider is cuda/tensorrt, retry with --provider cpu: some non-CPU\n"
+                f"         providers are known to drop initializers when serializing\n"
+                f"       - check you're looking in the right working directory"
+            )
     x = (
         np.random.default_rng(0)
         .standard_normal((a.batch, 3, a.input_size, a.input_size))

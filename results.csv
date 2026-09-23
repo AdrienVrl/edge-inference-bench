@@ -1,2 +1,9 @@
 phase,platform,config,backend,latency_median_ms,latency_p95_ms,throughput_ips,peak_mem_mb,model_size_mb,accuracy,acc_metric,batch,threads,versions,notes
 0,Laptop CPU (WSL2),PyTorch FP32 (v2),torch,23.829,28.796,41.97,725.9,14.02,,,1,4,py3.14.4 torch=2.11.0+cu128,
+1,Laptop CPU (WSL2),ORT FP32 (all opts),ort,4.262,6.533,234.65,108.6,13.99,,,1,4,py3.14.4 onnxruntime=1.30.0,providers=CPU
+1,Laptop CPU (WSL2),"ORT INT8 static (QDQ, per-channel)",ort,6.916,8.154,144.59,81.8,3.91,63.10,top1@1000,1,4,py3.14.4 onnxruntime=1.30.0,providers=CPU; agree_with_ref=73.5%
+1,Laptop CPU (WSL2),Unstructured L1 prune 30%,ort,4.163,6.547,240.20,98.9,13.99,23.50,top1@1000,1,4,py3.14.4 onnxruntime=1.30.0,providers=CPU; agree_with_ref=26.0%
+1,Laptop CPU (WSL2),Structured channel prune 30%,ort,5.842,7.193,171.18,93.4,8.01,0.00,top1@1000,1,4,py3.14.4 onnxruntime=1.30.0,providers=CPU; agree_with_ref=0.1%
+1,Laptop CPU (WSL2),Unstructured L1 prune 5%,ort,4.125,6.532,242.43,98.8,13.99,72.80,top1@1000,1,4,py3.14.4 onnxruntime=1.30.0,providers=CPU; agree_with_ref=95.3%
+1,Laptop CPU (WSL2),Structured channel prune 5%,ort,7.026,11.042,142.33,96.3,12.87,14.30,top1@1000,1,4,py3.14.4 onnxruntime=1.30.0,providers=CPU; agree_with_ref=14.9%
+1,Laptop CPU (WSL2),Structured channel prune 5% + BN restat,ort,10.672,12.793,93.70,96.4,12.87,53.70,top1@1000,1,4,py3.14.4 onnxruntime=1.30.0,providers=CPU; agree_with_ref=59.5%
