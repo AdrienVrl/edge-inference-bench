@@ -43,7 +43,7 @@ except ImportError:  # pragma: no cover
     resource = None
 
 ROOT = Path(__file__).resolve().parent
-CSV_PATH = ROOT / "results.csv"
+CSV_PATH = ROOT / "../results.csv"
 README_PATH = ROOT / "README.md"
 PREDS_DIR = ROOT / "preds"
 TABLE_START = "<!-- BENCH-TABLE:START -->"

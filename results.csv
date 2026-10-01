@@ -7,3 +7,8 @@ phase,platform,config,backend,latency_median_ms,latency_p95_ms,throughput_ips,pe
 1,Laptop CPU (WSL2),Unstructured L1 prune 5%,ort,4.125,6.532,242.43,98.8,13.99,72.80,top1@1000,1,4,py3.14.4 onnxruntime=1.30.0,providers=CPU; agree_with_ref=95.3%
 1,Laptop CPU (WSL2),Structured channel prune 5%,ort,7.026,11.042,142.33,96.3,12.87,14.30,top1@1000,1,4,py3.14.4 onnxruntime=1.30.0,providers=CPU; agree_with_ref=14.9%
 1,Laptop CPU (WSL2),Structured channel prune 5% + BN restat,ort,10.672,12.793,93.70,96.4,12.87,53.70,top1@1000,1,4,py3.14.4 onnxruntime=1.30.0,providers=CPU; agree_with_ref=59.5%
+2,Quadro T1000 (WSL2),TensorRT fp32,trtexec,1.22162,,602.657,,14.37,,,,,,GPU compute time only (excludes H2D/D2H copy); no extra precision flags (trtexec defaults some layers to fp16/tf32 automatically - see log for the actual layer precisions)
+2,Quadro T1000 (WSL2),TensorRT fp16,trtexec,1.17261,,561.234,,9.98,,,,,,GPU compute time only (excludes H2D/D2H copy); explicit --fp16
+2,Quadro T1000 (WSL2),TensorRT int8,trtexec,0.786377,,818.384,,8.08,,,,,,"GPU compute time only (excludes H2D/D2H copy); reuses phase-1 QDQ scales (Conv-only quantization), no separate TRT calibration"
+3,ARM VM (Ampere Altra),ORT FP32,ort,52.081,68.648,19.20,93.2,13.99,73.40,top1@1000,1,4,py3.9.25 onnxruntime=1.19.2,providers=CPU; agree_with_ref=100.0%
+3,ARM VM (Ampere Altra),ORT INT8 static (Conv-only),ort,77.598,99.562,12.89,90.2,7.54,68.20,top1@1000,1,4,py3.9.25 onnxruntime=1.19.2,providers=CPU; agree_with_ref=82.3%
