@@ -27,7 +27,7 @@ The table is generated from `results.csv` by `bench.py`. Don't edit it by hand.
 | 3 | ARM VM (Ampere Altra) | ORT INT8 static (Conv-only) | 77.60 | 99.56 | 12.9 | 90.2 | 7.5 | 68.2 (top1@1000) | providers=CPU; agree_with_ref=82.3% |
 | 4 | Laptop CPU (WSL2) | TVM (MetaSchedule tuned) | 324.06 | 329.30 | 3.1 |  | 14.8 |  | target=llvm -mcpu=native; IR=relax; tuning requested but fell back to untuned (see stderr); accuracy not separately evaluated here - same graph/weights as the matching ORT FP32 row, see that row for accuracy |
 | 4 | Laptop CPU (WSL2) | TVM (untuned | tvm | 306.64 | 316.8 | 3.3 |  | 14.8 |  |
-| 5 | ARM VM (QEMU) |  ARM64 ORT | 5000.46 |  |  |  |  |  | QEMU TCG, not real time |
+| 5 | ARM VM (QEMU) |  ARM64 ORT | ort | 5000.46 |  |  |  |  | QEMU TCG, not real time |
 <!-- BENCH-TABLE:END -->
 
 ### Findings
