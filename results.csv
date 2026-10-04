@@ -12,3 +12,6 @@ phase,platform,config,backend,latency_median_ms,latency_p95_ms,throughput_ips,pe
 2,Quadro T1000 (WSL2),TensorRT int8,trtexec,0.786377,,818.384,,8.08,,,,,,"GPU compute time only (excludes H2D/D2H copy); reuses phase-1 QDQ scales (Conv-only quantization), no separate TRT calibration"
 3,ARM VM (Ampere Altra),ORT FP32,ort,52.081,68.648,19.20,93.2,13.99,73.40,top1@1000,1,4,py3.9.25 onnxruntime=1.19.2,providers=CPU; agree_with_ref=100.0%
 3,ARM VM (Ampere Altra),ORT INT8 static (Conv-only),ort,77.598,99.562,12.89,90.2,7.54,68.20,top1@1000,1,4,py3.9.25 onnxruntime=1.19.2,providers=CPU; agree_with_ref=82.3%
+4,Laptop CPU (WSL2),TVM (MetaSchedule tuned),tvm,324.0557,329.3038,3.09,,14.82,,,,,,"target=llvm -mcpu=native; IR=relax; tuning requested but fell back to untuned (see stderr); accuracy not separately evaluated here - same graph/weights as the matching ORT FP32 row, see that row for accuracy"
+4,Laptop CPU (WSL2),TVM (untuned, x86-64-v3),tvm,306.6423,316.8380,3.26,,14.85,,,,,,"target={""kind"": ""llvm"", ""mcpu"": ""x86-64-v3""}; IR=relax; untuned; accuracy not separately evaluated here - same graph/weights as the matching ORT FP32 row, see that row for accuracy"
+5,ARM VM (QEMU), ARM64 ORT, ort, 5000.4635,,,,,,,,,,"QEMU TCG, not real time"

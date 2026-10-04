@@ -20,7 +20,24 @@ The table is generated from `results.csv` by `bench.py`. Don't edit it by hand.
 | 1 | Laptop CPU (WSL2) | Unstructured L1 prune 5% | 4.12 | 6.53 | 242.4 | 98.8 | 14.0 | 72.8 (top1@1000) | providers=CPU; agree_with_ref=95.3% |
 | 1 | Laptop CPU (WSL2) | Structured channel prune 5% | 7.03 | 11.04 | 142.3 | 96.3 | 12.9 | 14.3 (top1@1000) | providers=CPU; agree_with_ref=14.9% |
 | 1 | Laptop CPU (WSL2) | Structured channel prune 5% + BN restat | 10.67 | 12.79 | 93.7 | 96.4 | 12.9 | 53.7 (top1@1000) | providers=CPU; agree_with_ref=59.5% |
+| 2 | Quadro T1000 (WSL2) | TensorRT fp32 | 1.22 |  | 602.7 |  | 14.4 |  | GPU compute time only (excludes H2D/D2H copy); no extra precision flags (trtexec defaults some layers to fp16/tf32 automatically - see log for the actual layer precisions) |
+| 2 | Quadro T1000 (WSL2) | TensorRT fp16 | 1.17 |  | 561.2 |  | 10.0 |  | GPU compute time only (excludes H2D/D2H copy); explicit --fp16 |
+| 2 | Quadro T1000 (WSL2) | TensorRT int8 | 0.79 |  | 818.4 |  | 8.1 |  | GPU compute time only (excludes H2D/D2H copy); reuses phase-1 QDQ scales (Conv-only quantization), no separate TRT calibration |
+| 3 | ARM VM (Ampere Altra) | ORT FP32 | 52.08 | 68.65 | 19.2 | 93.2 | 14.0 | 73.4 (top1@1000) | providers=CPU; agree_with_ref=100.0% |
+| 3 | ARM VM (Ampere Altra) | ORT INT8 static (Conv-only) | 77.60 | 99.56 | 12.9 | 90.2 | 7.5 | 68.2 (top1@1000) | providers=CPU; agree_with_ref=82.3% |
+| 4 | Laptop CPU (WSL2) | TVM (MetaSchedule tuned) | 324.06 | 329.30 | 3.1 |  | 14.8 |  | target=llvm -mcpu=native; IR=relax; tuning requested but fell back to untuned (see stderr); accuracy not separately evaluated here - same graph/weights as the matching ORT FP32 row, see that row for accuracy |
+| 4 | Laptop CPU (WSL2) | TVM (untuned | tvm | 306.64 | 316.8 | 3.3 |  | 14.8 |  |
+| 5 | ARM VM (QEMU) |  ARM64 ORT | 5000.46 |  |  |  |  |  | QEMU TCG, not real time |
 <!-- BENCH-TABLE:END -->
+
+### Findings
+- **INT8 static PTQ gave no CPU speedup** over FP32 (6.92ms vs. 4.26ms) — root cause: this CPU lacks AVX2/AVX512-VNNI, and QDQ format relies on ORT's CPU EP fusing Q/DQ into true INT8 ops, which it does inconsistently for MobileNetV2's depthwise convs.
+- **Unstructured pruning behaved exactly as theory predicts**: shapes unchanged → no latency/size change, accuracy held (72.8% at 5%).
+- **Structured pruning (torch-pruning) caused prediction collapse at both 30% and 5%** (up to 81% of predictions in one class), traced to stale BatchNorm statistics. A BN-restat pass (reset + forward passes on real images) recovered accuracy substantially but not fully (14.3%→53.7% at 5%, vs. 72.8% for unstructured) — residual gap likely from MobileNetV2's depthwise/grouped convs, a known sharp edge for channel-pruning tools.
+- **TensorRT INT8 (0.79ms) beat FP16 (1.17ms) and FP32 (1.22ms)**: the T1000 has no tensor cores, so these gains come from reduced memory traffic/simpler math, not tensor-core throughput.
+- **On the ARM VM, ORT INT8 was slower than FP32**: (77.6ms vs. 52.1ms), need further investigation
+- **TVM (0.27.0.post1, Relax): ~70× slower than ORT, ~13× slower than PyTorch**: this build's meta_schedule (autotuner) is entirely absent, and without it Relax's default lowering appears to produce schedule-free TIR with no parallel/vectorize annotations.
+- **ort-infer ran successfully inside the Yocto image (~5s/inference)**: confirms the full cross-compile→package→boot→link pipeline works, but the number is a QEMU TCG software-emulation artifact.
 
 ## Methodology
 
@@ -39,7 +56,7 @@ Fixed for every row, so numbers are comparable:
   `trtexec` reports GPU compute time only. Both are labeled in the Notes column.
 - **Versions:** Python and runtime versions are stored per row in `results.csv`.
 - **Platforms:** always give the label a hardware description, e.g.
-  `Laptop CPU (WSL2)`, `Quadro T1000 (WSL2)`, `ARM VM (Graviton2)`, `Nucleo F446RE @180 MHz`.
+  `Laptop CPU (WSL2)`, `Quadro T1000 (WSL2)`, `ARM VM (Graviton2)`.
 
 ## Usage
 
